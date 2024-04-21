@@ -14,7 +14,17 @@ $INCLUDE (8051.MCU)
 ;====================================================================
 
 ;====================================================================
-; VARIABLES
+KQ EQU 0
+
+COL1 EQU P2.3
+COL2 EQU P2.2
+COL3 EQU P2.1
+COL4 EQU P2.0
+
+ROW_A EQU P2.4
+ROW_B EQU P2.5
+ROW_C EQU P2.6
+ROW_D EQU P2.7
 ;====================================================================
 
 ;====================================================================
@@ -28,9 +38,7 @@ $INCLUDE (8051.MCU)
       LJMP T0_ISR
       
 
-;====================================================================
-; CODE SEGMENT
-;====================================================================
+
 DELAY:
       MOV	R7, #255
       DL1:
@@ -38,7 +46,7 @@ DELAY:
 RET
       org   0100h
 Start:	
-      MOV TMOD, #09H
+      MOV TMOD, #01H
       MOV TH0, #0EEH
       MOV TL0, #06H
       MOV IE, #87H
@@ -47,19 +55,38 @@ Start:
       MOV R0, #0 ; CHU KÌ
       MOV R1, #7 ; GIAY 7-3-10
       MOV R2, #1
+      
+      MOV R3, #10
+      MOV R4, #1
+      
+      CLR P3.0
       CLR P3.7
 Loop:	
-      SETB	P3.1
+      SETB	P2.1
       MOV	A, R1
       MOV	B, #0AH
       DIV	AB
       MOV	P0, B
       CALL DELAY
-      CLR	P3.1
-      SETB	P3.0
+      CLR	P2.1
+      SETB	P2.0
       MOV	P0, A
       CALL DELAY
-      CLR	P3.0
+      CLR	P2.0
+      
+      SETB	P2.3
+      MOV	A, R3
+      MOV	B, #0AH
+      DIV	AB
+      MOV	P0, B
+      CALL DELAY
+      CLR	P2.3
+      SETB	P2.2
+      MOV	P0, A
+      CALL DELAY
+      CLR	P2.2
+      
+      ;CALL KEYPAD
       jmp Loop
 
 
@@ -70,7 +97,7 @@ T0_ISR:
       SETB TR0
       INC R0
       CJNE R0, #200, END_T0_ISR
-      GIAY: 
+      GIAY_1: 
 	    DEC R1
 	    MOV	R0, #0 
 	    XANH:
@@ -82,7 +109,6 @@ T0_ISR:
 	       CON_X:
 	       CLR P3.7
 	       SETB P3.5
-	       SETB P3.6
 	    VANG:
 	       CJNE R2, #2, DO
 	       CJNE R1, #0, CON_V
@@ -91,23 +117,116 @@ T0_ISR:
 		  JMP DO
 	       CON_V:
 	       CLR P3.6
-	       SETB P3.5
 	       SETB P3.7
 	    DO:
-	       CJNE R2, #3, END_T0_ISR
+	       CJNE R2, #3, GIAY_2
 	       CJNE R1, #0, CON_DO
 		  MOV R1, #7
 		  MOV R2, #1
-		  CLR P3.7
-		  JMP END_T0_ISR
+		  SETB P3.5
+		  JMP XANH
 	       CON_DO:
 	       CLR P3.5
-	       SETB P3.7
 	       SETB P3.6
-	    
-	    
+      GIAY_2: 
+	    DEC R3
+	    DO_2:
+	       CJNE R4, #1, XANH_2
+	       CJNE R3, #0, CON_DO_2
+		  MOV R3, #7
+		  INC R4
+		  JMP XANH_2
+	       CON_DO_2:
+	       CLR P3.0
+	       SETB P3.1
+	    XANH_2:
+	       CJNE R4, #2, VANG_2
+	       CJNE R3, #0, CON_X_2
+		  MOV R3, #3
+		  INC R4
+		  JMP VANG_2
+	       CON_X_2:
+	       CLR P3.4
+	       SETB P3.0
+	    VANG_2:
+	       CJNE R4, #3, END_T0_ISR
+	       CJNE R3, #0, CON_V_2
+		  MOV R3, #10
+		  MOV R4, #1
+		  SETB P3.1
+		  JMP DO_2
+	       CON_V_2:
+	       CLR P3.1
+	       SETB P3.4
       END_T0_ISR:
 RETI
-      
+
+KEYPAD:
+   MOV P1,#0FFh
+    CLR ROW_A
+	  ADB0:
+		JB COL1, ADB1
+		MOV KQ,#7; Phim 7 bam
+	  ADB1:
+		JB COL2, ADB2
+		MOV KQ,#8 ; Phim 8 bam
+	  ADB2:
+		JB COL3, ADB3
+		MOV KQ,#9 ; Phim 9 bam
+	  ADB3:
+		JB COL4, AFINISH
+		MOV KQ,#'/' ; Phim "/" bam
+	  AFINISH:
+    SETB ROW_A
+    
+    CLR ROW_B
+	  BDB0:
+		JB COL1, BDB1
+		MOV KQ,#4 ; Phim 4 bam
+	  BDB1:
+		JB COL2, BDB2
+		MOV KQ,#5 ; Phim 5 bam
+	  BDB2:
+		JB COL3, BDB3
+		MOV KQ,#6 ; Phim 6 bam
+	  BDB3:
+		JB COL4, BFINISH
+		MOV KQ,#'*' ; Phim "*" bam
+	  BFINISH:
+    SETB ROW_B
+    
+    CLR ROW_C
+	  CDB0:
+		JB COL1, CDB1
+		MOV KQ,#1 ; Phim 1 bam
+	  CDB1:
+		JB COL2, CDB2
+		MOV KQ,#2 ; Phim 2 bam
+	  CDB2:
+		JB COL3, CDB3
+		MOV KQ,#3 ; Phim 3 bam
+	  CDB3:
+		JB COL4, CFINISH
+		MOV KQ,#'-' ; Phim "-" bam
+	  CFINISH:
+    SETB ROW_C
+    
+    CLR ROW_D
+	  DDB0:
+		JB COL1, DDB1
+		MOV KQ,#'C' ; Phim "ON/C" bam
+	  DDB1:
+		JB COL2, DDB2
+		MOV KQ,#0 ; Phim 0 bam
+	  DDB2:
+		JB COL3, DDB3
+		MOV KQ,#'=' ; Phim "=" bam
+	  DDB3:
+		JB COL4, DFINISH
+		MOV KQ,#'+' ; Phim "+" bam
+	  DFINISH:
+    SETB ROW_D
+    
+RET 
 ;====================================================================
       END
