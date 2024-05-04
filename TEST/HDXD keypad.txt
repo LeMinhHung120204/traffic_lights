@@ -1,1 +1,3 @@
-nhấn C/On : pause/resume
+- nhấn C/On : pause/resume
+- sau khi pause thì nhấn số để cài đặt time
+- nhấn = : để chạy tiếp. Nếu đã cài time thì sẽ chạy tiếp theo time đã cài.
