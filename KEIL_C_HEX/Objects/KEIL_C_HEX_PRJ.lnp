@@ -1,0 +1,3 @@
+".\Objects\DOAN.obj" 
+TO ".\Objects\KEIL_C_HEX_PRJ" 
+PRINT(".\Listings\KEIL_C_HEX_PRJ.m51")

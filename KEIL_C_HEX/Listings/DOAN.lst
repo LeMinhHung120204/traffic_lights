@@ -1,0 +1,320 @@
+A51 MACRO ASSEMBLER  DOAN                                                                 05/06/2024 08:07:30 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+OBJECT MODULE PLACED IN .\Objects\DOAN.obj
+ASSEMBLER INVOKED BY: C:\Keil_v5\C51\BIN\A51.EXE DOAN.asm SET(SMALL) DEBUG PRINT(.\Listings\DOAN.lst) OBJECT(.\Objects\D
+                      OAN.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     
+                       2     ;====================================================================
+                       3     ; DEFINITIONS
+                       4     ;====================================================================
+                       5     
+                       6     ;====================================================================
+                       7     
+                       8     ;====================================================================
+                       9     
+                      10     ;====================================================================
+                      11     ; RESET and INTERRUPT VECTORS
+                      12     ;====================================================================
+                      13     
+                      14           ; Reset Vector
+0000                  15           org   0000h
+0000 2100             16           jmp   Start
+                      17           
+000B                  18           ORG       000BH ; ngat timer 0
+000B 020139           19           LJMP T0_ISR
+                      20           
+0003                  21           ORG       0003H ; ngat itr 0
+0003 020138           22           LJMP INT0_ISR
+                      23           
+                      24     
+0006                  25     DELAY:
+0006 7F19             26           MOV R7, #25
+0008                  27           DL1:
+0008 DFFE             28              DJNZ R7, DL1
+000A 22               29     RET
+                      30     
+0100                  31           org   0100h
+0100                  32     Start:
+  0007                33           TGXANH EQU 7
+  0003                34           TGVANG EQU 3
+  000A                35           TGDO EQU 10
+0100 758901           36           MOV TMOD, #01H
+0103 758CEE           37           MOV TH0, #0EEH
+0106 758A06           38           MOV TL0, #06H
+0109 75A887           39           MOV IE, #87H
+                      40           
+010C D28C             41           SETB TR0
+010E D288             42           SETB IT0
+                      43           
+0110 7800             44           MOV R0, #0 ; CHU KÌ
+0112 7907             45           MOV R1, #7 ; GIAY 7-3-10
+0114 7A01             46           MOV R2, #1
+                      47           
+0116 7B0A             48           MOV R3, #10
+0118 7C01             49           MOV R4, #1
+                      50           
+011A 7D00             51           MOV R5, #0 ; quan ly C
+                      52           
+011C C2B0             53           CLR P3.0
+011E C2B7             54           CLR P3.7
+                      55           
+0120                  56     Loop:   
+                      57           ;quet led den 1
+A51 MACRO ASSEMBLER  DOAN                                                                 05/06/2024 08:07:30 PAGE     2
+
+0120 C2A1             58           CLR       P2.1
+0122 E9               59           MOV       A, R1
+0123 75F00A           60           MOV       B, #0AH
+0126 84               61           DIV       AB
+0127 85F080           62           MOV       P0, B
+012A 1106             63           CALL DELAY
+012C D2A1             64           SETB      P2.1
+012E C2A0             65           CLR       P2.0
+0130 F580             66           MOV       P0, A
+0132 1106             67           CALL DELAY
+0134 D2A0             68           SETB      P2.0
+0136 80E8             69           jmp Loop
+                      70     
+0138                  71     INT0_ISR:
+0138 32               72           RETI
+                      73     
+0139                  74     T0_ISR:
+0139 B2A7             75           CPL       P2.7
+013B 758CEE           76           MOV TH0, #0EEH
+013E 758A06           77           MOV TL0, #06H
+0141 D28C             78           SETB TR0
+0143 08               79           INC R0
+0144 B8C864           80           CJNE R0, #200, END_T0_ISR
+                      81           ;xu ly thoi gian den 1
+0147                  82           GIAY_1: 
+0147 19               83                 DEC R1
+0148 7800             84                 MOV R0, #0 
+014A                  85                 XANH:
+014A BA010C           86                    CJNE R2, #1, VANG
+014D B90005           87                    CJNE R1, #0, CON_X
+0150 7903             88                       MOV R1, #TGVANG
+0152 0A               89                       INC R2
+0153 8004             90                       JMP VANG
+0155                  91                    CON_X:
+0155 C2B7             92                    CLR P3.7
+0157 D2B5             93                    SETB P3.5
+0159                  94                 VANG:
+0159 BA020C           95                    CJNE R2, #2, DO
+015C B90005           96                    CJNE R1, #0, CON_V
+015F 790A             97                       MOV R1, #TGDO
+0161 0A               98                       INC R2
+0162 8004             99                       JMP DO
+0164                 100                    CON_V:
+0164 C2B6            101                    CLR P3.6
+0166 D2B7            102                    SETB P3.7
+0168                 103                 DO:
+0168 BA030F          104                    CJNE R2, #3, GIAY_2
+016B B90008          105                    CJNE R1, #0, CON_DO
+016E 7907            106                       MOV R1, #TGXANH
+0170 7A01            107                       MOV R2, #1
+0172 D2B5            108                       SETB P3.5
+0174 80D4            109                       JMP XANH
+0176                 110                    CON_DO:
+0176 C2B5            111                    CLR P3.5
+0178 D2B6            112                    SETB P3.6
+                     113           ;xu ly thoi gian den 2
+017A                 114           GIAY_2: 
+017A 1B              115                 DEC R3
+017B                 116                 DO_2:
+017B BC010C          117                    CJNE R4, #1, XANH_2
+017E BB0005          118                    CJNE R3, #0, CON_DO_2
+0181 7B07            119                       MOV R3, #TGXANH
+0183 0C              120                       INC R4
+0184 8004            121                       JMP XANH_2
+0186                 122                    CON_DO_2:
+0186 C2B0            123                    CLR P3.0
+A51 MACRO ASSEMBLER  DOAN                                                                 05/06/2024 08:07:30 PAGE     3
+
+0188 D2B1            124                    SETB P3.1
+018A                 125                 XANH_2:
+018A BC020C          126                    CJNE R4, #2, VANG_2
+018D BB0005          127                    CJNE R3, #0, CON_X_2
+0190 7B03            128                       MOV R3, #TGVANG
+0192 0C              129                       INC R4
+0193 8004            130                       JMP VANG_2
+0195                 131                    CON_X_2:
+0195 C2B4            132                    CLR P3.4
+0197 D2B0            133                    SETB P3.0
+0199                 134                 VANG_2:
+0199 BC030F          135                    CJNE R4, #3, END_T0_ISR
+019C BB0008          136                    CJNE R3, #0, CON_V_2
+019F 7B0A            137                       MOV R3, #TGDO
+01A1 7C01            138                       MOV R4, #1
+01A3 D2B1            139                       SETB P3.1
+01A5 80D4            140                       JMP DO_2
+01A7                 141                    CON_V_2:
+01A7 C2B1            142                    CLR P3.1
+01A9 D2B4            143                    SETB P3.4
+01AB                 144           END_T0_ISR:
+01AB 32              145     RETI
+                     146     
+01AC                 147     KEYPAD:
+01AC 7590F0          148           MOV P1, #0F0H ; cho hang co tin hieu 0 va cot o muc 1
+01AF                 149           KIEMTRACOT:;xu dung quet nut, 4 bit dau port1 dung de quet, 4 bit cuoi dung de nhan b
+                             iet nut bam
+01AF 7590F7          150              MOV P1, #0F7H ; cho hang D = 0 1111 0111
+01B2 E590            151              MOV A, P1; lay tin hieu cua nut nhan
+01B4 54F0            152              ANL A, #0F0H; and de lay nhung bit nut bam
+01B6 B4F01F          153              CJNE A, #0F0H, SCAN_R0 ; kiem tra co su thay doi nut chua noi co nhay toi scan_r0
+                     154              
+01B9 7590FB          155              MOV P1, #0FBH ; hang C 1111 1011
+01BC E590            156              MOV A, P1
+01BE 54F0            157              ANL A, #0F0H
+01C0 B4F030          158              CJNE A, #0F0H, SCAN_R1
+                     159             
+01C3 7590FD          160              MOV P1, #0FDH ; hang B 1111 1101
+01C6 E590            161              MOV A, P1
+01C8 54F0            162              ANL A, #0F0H
+01CA B4F031          163              CJNE A, #0F0H, SCAN_R2
+                     164              
+01CD 7590FE          165              MOV P1, #0FEH ; hang A 1111 1110
+01D0 E590            166              MOV A, P1
+01D2 54F0            167              ANL A, #0F0H
+01D4 B4F032          168              CJNE A, #0F0H, SCAN_R3
+01D7 22              169     RET 
+                     170     
+                     171     
+01D8                 172     SCAN_R0: ;kiem tra cac cot o hang D - hang chuc nang
+01D8 900300          173              MOV DPTR, #MAHANGD ; gan thanh ghi dia chi mahang0
+01DB 75F010          174              MOV B, #16 
+01DE 84              175              DIV AB ; A luu 4 bit lon, B luu 4 bit nho
+01DF B40E0D          176              CJNE A, #0EH, END_CN ; neu A != 1110 tuc khong la nut C/ON
+01E2 BD0005          177                 CJNE R5, #0, RESUME ; NEU R5 = 0 => RESUME
+01E5                 178                 PAUSE:
+01E5 0D              179                    INC R5
+01E6 C28C            180                    CLR TR0  ; neu A == 1110 thi cho ngung timer
+01E8 8008            181                    JMP END_SCAN0
+01EA                 182                 RESUME:
+01EA 1D              183                    DEC R5
+                     184                    ;CAPNHAT TGXANH DO VANG
+01EB D28C            185                    SETB TR0 ;neu A == 1011 tuc la nut = thi bat timer
+01ED 8003            186                    JMP END_SCAN0
+01EF                 187              END_CN:
+01EF 120214          188              LCALL SCAN; neu khong phai c THI DUYET
+A51 MACRO ASSEMBLER  DOAN                                                                 05/06/2024 08:07:30 PAGE     4
+
+01F2                 189              END_SCAN0:
+01F2 22              190              RET
+01F3                 191     SCAN_R1:
+01F3 900304          192              MOV DPTR, #MAHANGC
+01F6 75F010          193              MOV B, #16
+01F9 84              194              DIV AB
+01FA 120214          195              LCALL SCAN
+01FD 22              196              RET
+01FE                 197     SCAN_R2:
+01FE 900308          198              MOV DPTR, #MAHANGB
+0201 75F010          199              MOV B, #16
+0204 84              200              DIV AB
+0205 120214          201              LCALL SCAN
+0208 22              202              RET
+0209                 203     SCAN_R3:
+0209 90030C          204              MOV DPTR, #MAHANGA
+020C 75F010          205              MOV B, #16
+020F 84              206              DIV AB
+0210 120214          207              LCALL SCAN
+0213 22              208              RET
+                     209     
+0214                 210     SCAN:
+0214 13              211              RRC A ;quay phai a voi co nho c
+0215 5003            212              JNC MATCH; neu co nho C = 0 thi nhay toi MATCH
+0217 A3              213              INC DPTR; tang dia chi DPTR len 1 TUC LA SANG NUT KE TIEP
+0218 80FA            214              SJMP SCAN
+021A                 215              MATCH:
+021A 7400            216                 MOV A, #0
+021C 93              217                 MOVC A, @A + DPTR   ;gan A = gtri cua mang tai dia chi DPTR
+021D 208C02          218                 JB TR0, END_SCAN; neu timer dang bat thi nhay toi end_scan
+                     219                 
+0220 5123            220                 CALL SETTING_TIME; neu timer dang tat thi co the setting time
+0222                 221                 END_SCAN:
+0222 22              222     RET
+                     223           
+0223                 224     SETTING_TIME:; ham setting Time
+0223 9430            225              SUBB A, #48
+0225 F9              226              MOV R1, A
+0226 22              227     RET      
+                     228        
+0300                 229     ORG 300H; dia chi cac mang
+0300 43003D30        230     MAHANGD: DB 'C', 0,'=','0'
+0304 01020330        231     MAHANGC: DB 1, 2, 3,'0'
+0308 04050630        232     MAHANGB: DB 4, 5, 6,'0'
+030C 07080930        233     MAHANGA: DB 7, 8, 9,'0'
+                     234     
+                     235     ;====================================================================
+                     236           END
+A51 MACRO ASSEMBLER  DOAN                                                                 05/06/2024 08:07:30 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+B. . . . . . . . .  D ADDR   00F0H   A   
+CON_DO . . . . . .  C ADDR   0176H   A   
+CON_DO_2 . . . . .  C ADDR   0186H   A   
+CON_V. . . . . . .  C ADDR   0164H   A   
+CON_V_2. . . . . .  C ADDR   01A7H   A   
+CON_X. . . . . . .  C ADDR   0155H   A   
+CON_X_2. . . . . .  C ADDR   0195H   A   
+DELAY. . . . . . .  C ADDR   0006H   A   
+DL1. . . . . . . .  C ADDR   0008H   A   
+DO . . . . . . . .  C ADDR   0168H   A   
+DO_2 . . . . . . .  C ADDR   017BH   A   
+END_CN . . . . . .  C ADDR   01EFH   A   
+END_SCAN . . . . .  C ADDR   0222H   A   
+END_SCAN0. . . . .  C ADDR   01F2H   A   
+END_T0_ISR . . . .  C ADDR   01ABH   A   
+GIAY_1 . . . . . .  C ADDR   0147H   A   
+GIAY_2 . . . . . .  C ADDR   017AH   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INT0_ISR . . . . .  C ADDR   0138H   A   
+IT0. . . . . . . .  B ADDR   0088H.0 A   
+KEYPAD . . . . . .  C ADDR   01ACH   A   
+KIEMTRACOT . . . .  C ADDR   01AFH   A   
+LOOP . . . . . . .  C ADDR   0120H   A   
+MAHANGA. . . . . .  C ADDR   030CH   A   
+MAHANGB. . . . . .  C ADDR   0308H   A   
+MAHANGC. . . . . .  C ADDR   0304H   A   
+MAHANGD. . . . . .  C ADDR   0300H   A   
+MATCH. . . . . . .  C ADDR   021AH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PAUSE. . . . . . .  C ADDR   01E5H   A   
+RESUME . . . . . .  C ADDR   01EAH   A   
+SCAN . . . . . . .  C ADDR   0214H   A   
+SCAN_R0. . . . . .  C ADDR   01D8H   A   
+SCAN_R1. . . . . .  C ADDR   01F3H   A   
+SCAN_R2. . . . . .  C ADDR   01FEH   A   
+SCAN_R3. . . . . .  C ADDR   0209H   A   
+SETTING_TIME . . .  C ADDR   0223H   A   
+START. . . . . . .  C ADDR   0100H   A   
+T0_ISR . . . . . .  C ADDR   0139H   A   
+TGDO . . . . . . .  N NUMB   000AH   A   
+TGVANG . . . . . .  N NUMB   0003H   A   
+TGXANH . . . . . .  N NUMB   0007H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+VANG . . . . . . .  C ADDR   0159H   A   
+VANG_2 . . . . . .  C ADDR   0199H   A   
+XANH . . . . . . .  C ADDR   014AH   A   
+XANH_2 . . . . . .  C ADDR   018AH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
