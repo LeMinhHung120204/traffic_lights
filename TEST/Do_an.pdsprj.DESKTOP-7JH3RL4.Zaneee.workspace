@@ -16,7 +16,11 @@
     <PROGRAMMER NAME="" INTERFACE=""/>
    </PROJECT>
    <EDITOR>
+<<<<<<< HEAD
     <FILE LINE="201" ACTIVE="1" FIRST="179" NAME="AT89C51_1/main.asm" INDEX="27"/>
+=======
+    <FILE LINE="250" ACTIVE="1" FIRST="220" NAME="AT89C51_1/main.asm" INDEX="11"/>
+>>>>>>> 6861155a02ac27513fa7bd8416d1b322b87c41aa
    </EDITOR>
   </WINDOW>
   <WINDOW type="default" module="ARES">
