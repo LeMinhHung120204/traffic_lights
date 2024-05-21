@@ -251,15 +251,7 @@ XULY:
    CJNE A, #'C', CHECK
    CJNE R5, #0, C1
    INC R5
-   
-   MOV R0, #0 ; CHU KÌ
-   MOV R1, TGXANH ; GIAY 7-3-10
-   MOV R2, #1 ; 1: XANH, 2:VANG, 3:DO
-      
-   MOV R3, TGDO
-   MOV R4, #1
-   
-   
+   LCALL RESET_ALL
    SETB TR0
    SJMP END_XULY
 C1:
@@ -310,7 +302,22 @@ END_XULY:
 RET
 ;====================================================================
 ;HAM SETTING TIME      
-SETTING_TIME:; ham setting Time
+RESET_ALL:; ham setting Time
+   SETB P3.5
+   SETB P3.6
+   
+   SETB P3.1
+   SETB P3.4
+   
+   CLR P3.0
+   CLR P3.7
+   
+   MOV R0, #0 ; CHU KÌ
+   MOV R1, TGXANH ; GIAY 7-3-10
+   MOV R2, #1 ; 1: XANH, 2:VANG, 3:DO
+      
+   MOV R3, TGDO
+   MOV R4, #1
 RET      
 ;====================================================================
 ;DIA CHI CHUA MANG
