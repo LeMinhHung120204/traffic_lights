@@ -72,14 +72,14 @@ RET
 ;HAM HIENTHI
 HIENTHI:
       ;quet led den 1
-      CLR	P2.1
+      clr	P2.1
       MOV	A, R1
       MOV	B, #0AH
       DIV	AB
       MOV	P0, B
       CALL DELAY
       SETB	P2.1
-      CLR	P2.0
+      clr	P2.0
       MOV	P0, A
       CALL DELAY
       SETB	P2.0
@@ -256,6 +256,14 @@ XULY:
    SJMP END_XULY
 C1:
    CJNE R5, #1, C2
+   
+   CLR P3.4
+   CLR P3.7
+   SETB P3.0
+   SETB P3.1
+   SETB P3.5
+   SETB P3.6
+   
    MOV TIME, #0
    MOV R1, TIME
    MOV R3, TIME
@@ -264,6 +272,12 @@ C1:
    SJMP END_XULY
 C2:
    CJNE R5, #2, C3
+   
+   CLR P3.1
+   CLR P3.6
+   SETB P3.4
+   SETB P3.7
+   
    MOV TIME, #0
    MOV R1, TIME
    MOV R3, TIME
@@ -271,6 +285,12 @@ C2:
    SJMP END_XULY
 C3:
    CJNE R5, #3, END_XULY
+   
+   CLR P3.0
+   CLR P3.5
+   SETB P3.1
+   SETB P3.6
+   
    MOV TIME, #0
    MOV R1, TIME
    MOV R3, TIME
@@ -282,6 +302,9 @@ CHECK:
 NHAPSO:
    MOV R6, A
    MOV A, TIME
+   MOV B, #10
+   DIV AB
+   MOV A, B
    MOV B, #10
    MUL AB
    ADD A, R6
@@ -301,12 +324,9 @@ NHAP_DO:
 END_XULY:
 RET
 ;====================================================================
-;HAM SETTING TIME      
-RESET_ALL:; ham setting Time
+;HAM reset
+RESET_ALL:
    SETB P3.5
-   SETB P3.6
-   
-   SETB P3.1
    SETB P3.4
    
    CLR P3.0
@@ -322,10 +342,14 @@ RET
 ;====================================================================
 ;DIA CHI CHUA MANG
 ORG 300H; dia chi cac mang
-MAHANGD: DB 'C', 0, '=', '0'
-MAHANGC: DB 1, 2, 3, '0'
-MAHANGB: DB 4, 5, 6, '0'
-MAHANGA: DB 7, 8, 9, '0'
+;MAHANGD: DB 'C', 0, '=', '0'
+;MAHANGC: DB 1, 2, 3, '0'
+;MAHANGB: DB 4, 5, 6, '0'
+;MAHANGA: DB 7, 8, 9, '0'
 
+MAHANGD: DB 1, 4, 7, 'C'
+MAHANGC: DB 2, 5, 8, 0
+MAHANGB: DB 3, 6, 9, '='
+MAHANGA: DB '0', '0', '0', '0'
 ;====================================================================
       END
