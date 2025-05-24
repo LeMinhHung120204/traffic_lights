@@ -17,11 +17,9 @@
 
 # GIỚI THIỆU MÔN HỌC
 * **Tên môn học:** Vi xử lý-vi điều khiển
-* **Mã môn học:** CE103
-* **Mã lớp:** CE103.O24
-* **Năm học:** HK2 (2023 - 2024)
-* **Giảng viên**: Trần Hoàng Lộc
-
+* **Mã môn học:** CE433
+* **Mã lớp:** CE433.P21
+* **Giảng viên**: Trần Thị Điểm
 # ĐỒ ÁN CUỐI KÌ
-* **Đề tài:** Đèn giao thông
+* **Đề tài:** Thiết kế hệ thống SoC cho thuật toán SM4
 
